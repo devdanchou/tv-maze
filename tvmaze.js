@@ -18,7 +18,7 @@ async function getShowsByTerm(term) {
   const showRequestBaseURL = "http://api.tvmaze.com/search/shows";
 
   // make a request and extract these data -> id, name, summary, image
-  const requestData = await axios.get(showRequestBaseURL, { params: { q: `[${term}]` } });
+  const requestData = await axios.get(showRequestBaseURL, { params: { q:term } });//TODO:show change
   console.log('finished awaiting', requestData.data);
 
   const allResults = [];
@@ -26,15 +26,15 @@ async function getShowsByTerm(term) {
   for (let i=0;i<requestData.data.length;i++){
     allResults.push(
       {
-      id:requestData.data[0].show.id,
-      name:requestData.data[0].show.name,
-      summary:requestData.data[0].show.summary,
-      image:requestData.data[0].show.image.medium,
+      id:requestData.data[i].show.id, //TODO: show change
+      name:requestData.data[i].show.name,
+      summary:requestData.data[i].show.summary,
+      image:requestData.data[i].show.image.medium,
       }
     );
   }
   console.log(allResults);
-  return [allResults];
+  return allResults; //TODO:show change
 }
 
 

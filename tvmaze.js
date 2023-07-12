@@ -3,8 +3,9 @@
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
+const $episodesList = $("#episodesList");
 
-const SHOW_REQUEST_BASE_URL = "http://api.tvmaze.com";
+const REQUEST_BASE_URL = "http://api.tvmaze.com";
 const NULL_IMG_URL = "https://tinyurl.com/tv-missing";
 
 
@@ -18,7 +19,7 @@ const NULL_IMG_URL = "https://tinyurl.com/tv-missing";
 async function getShowsByTerm(term) {
   console.log('getShowByTerm called with', term);
   // ADD: Remove placeholder & make request to TVMaze search shows API.
-  const showRequestBaseURL = `${SHOW_REQUEST_BASE_URL}/search/shows`;
+  const showRequestBaseURL = `${REQUEST_BASE_URL}/search/shows`;
   console.log(showRequestBaseURL);
 
   // make a request and extract these data -> id, name, summary, image
@@ -129,10 +130,36 @@ $searchForm.on("submit", async function handleSearchForm(evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+async function getEpisodesOfShow(id) {
+  const episodeRequestBaseURL = `${REQUEST_BASE_URL}/shows/${id}/episodes`;
+  const response = await axios.get(episodeRequestBaseURL);
 
-/** Write a clear docstring for this function... */
+  const searchResults = response.data.map(item => {
+    const showObject = {
+      id: item.id,
+      name: item.name,
+      season: item.season,
+      number: item.number,
+    }
 
-// function displayEpisodes(episodes) { }
+    console.log("resulting object:", showObject);
+    return showObject;
+  })
+
+  return searchResults;
+ }
+
+/** Takes in an array of episodes data and publishes it to the DOM;
+ *  episode info => { id, name, season, number } */
+
+function displayEpisodes(episodes) {
+
+  for (let episode of episodes) {
+    const $li = $(`<li>${episode.name} (season ${episode.season}, number ${episode.number})</li>`);
+    $episodesList.append($li);
+  }
+
+  $episodesArea.css("display", "block");
+}
 
 // add other functions that will be useful / match our structure & design

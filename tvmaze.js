@@ -13,28 +13,36 @@ const $searchForm = $("#searchForm");
  */
 
 async function getShowsByTerm(term) {
-  console.log('getShowByTerm called with',term);
+  console.log('getShowByTerm called with', term);
   // ADD: Remove placeholder & make request to TVMaze search shows API.
-  const showRequestBaseURL = "http://api.tvmaze.com/search/shows";
+  const showRequestBaseURL = "http://api.tvmaze.com/search/shows"; // make global constant for base url
 
   // make a request and extract these data -> id, name, summary, image
-  const requestData = await axios.get(showRequestBaseURL, { params: { q:term } });//TODO:show change
+  const requestData = await axios.get(showRequestBaseURL, { params: { q: term } }); // rename to response
   console.log('finished awaiting', requestData.data);
 
   const allResults = [];
 
-  for (let i=0;i<requestData.data.length;i++){
+  for (let i = 0; i < requestData.data.length; i++) { // try map
+    const image = requestData.data[i].show.image
+      ? requestData.data[i].show.image.medium
+      : null; // null image url
+
+    const summary = requestData.data[i].show.summary
+      ? requestData.data[i].show.summary
+      : "No summary available";
+
     allResults.push(
       {
-      id:requestData.data[i].show.id, //TODO: show change
-      name:requestData.data[i].show.name,
-      summary:requestData.data[i].show.summary,
-      image:requestData.data[i].show.image.medium,
+        id: requestData.data[i].show.id,
+        name: requestData.data[i].show.name,
+        summary: summary,
+        image: image,
       }
     );
   }
   console.log(allResults);
-  return allResults; //TODO:show change
+  return allResults;
 }
 
 
@@ -66,11 +74,11 @@ async function getShowsByTerm(term) {
  * */
 
 function displayShows(shows) {
-  console.log('displayShows',shows);
+  console.log('displayShows', shows);
   $showsList.empty();
 
   for (const show of shows) {
-    const imgURL = show.image ? show.image : "https://tinyurl.com/tv-missing";
+    const imgURL = show.image ? show.image : "https://tinyurl.com/tv-missing"; // turn missing url to global constant
     const $show = $(`
         <div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">

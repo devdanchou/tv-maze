@@ -4,6 +4,9 @@ const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 
+const SHOW_REQUEST_BASE_URL = "http://api.tvmaze.com";
+const NULL_IMG_URL = "https://tinyurl.com/tv-missing";
+
 
 /** Given a search term, search for tv shows that match that query.
  *
@@ -15,34 +18,36 @@ const $searchForm = $("#searchForm");
 async function getShowsByTerm(term) {
   console.log('getShowByTerm called with', term);
   // ADD: Remove placeholder & make request to TVMaze search shows API.
-  const showRequestBaseURL = "http://api.tvmaze.com/search/shows"; // make global constant for base url
+  const showRequestBaseURL = `${SHOW_REQUEST_BASE_URL}/search/shows`;
+  console.log(showRequestBaseURL);
 
   // make a request and extract these data -> id, name, summary, image
-  const requestData = await axios.get(showRequestBaseURL, { params: { q: term } }); // rename to response
-  console.log('finished awaiting', requestData.data);
+  const response = await axios.get(showRequestBaseURL, { params: { q: term } });
+  console.log('finished awaiting', response.data);
 
-  const allResults = [];
+  const searchResults = response.data.map(item => {
+    console.log("item=",item);
+    const image = item.show.image
+      ? item.show.image.medium
+      : NULL_IMG_URL;
 
-  for (let i = 0; i < requestData.data.length; i++) { // try map
-    const image = requestData.data[i].show.image
-      ? requestData.data[i].show.image.medium
-      : null; // null image url
-
-    const summary = requestData.data[i].show.summary
-      ? requestData.data[i].show.summary
+    const summary = item.show.summary
+      ? item.show.summary
       : "No summary available";
 
-    allResults.push(
-      {
-        id: requestData.data[i].show.id,
-        name: requestData.data[i].show.name,
-        summary: summary,
-        image: image,
-      }
-    );
-  }
-  console.log(allResults);
-  return allResults;
+    const showObject = {
+      id: item.show.id,
+      name: item.show.name,
+      summary: summary,
+      image: image,
+    }
+
+    console.log("resulting object:", showObject);
+    return showObject;
+  })
+
+  console.log('All results',searchResults);
+  return searchResults;
 }
 
 
@@ -78,12 +83,12 @@ function displayShows(shows) {
   $showsList.empty();
 
   for (const show of shows) {
-    const imgURL = show.image ? show.image : "https://tinyurl.com/tv-missing"; // turn missing url to global constant
+
     const $show = $(`
         <div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
-              src=${imgURL}
+              src=${show.image}
               alt="Bletchly Circle San Francisco"
               class="w-25 me-3">
            <div class="media-body">

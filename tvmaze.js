@@ -27,7 +27,7 @@ async function getShowsByTerm(term) {
   console.log('finished awaiting', response.data);
 
   const searchResults = response.data.map(item => {
-    console.log("item=",item);
+    console.log("item=", item);
     const image = item.show.image
       ? item.show.image.medium
       : NULL_IMG_URL;
@@ -41,37 +41,16 @@ async function getShowsByTerm(term) {
       name: item.show.name,
       summary: summary,
       image: image,
-    }
+    };
 
     console.log("resulting object:", showObject);
     return showObject;
-  })
+  });
 
-  console.log('All results',searchResults);
+  console.log('All results', searchResults);
   return searchResults;
 }
 
-
-/** +++++++++++++++++++++++++ OLD CODE FOR REFERENCE +++++++++++++++++*/
-// return [
-//   {
-//     id: exe,
-//     name: "The Bletchley Circle",
-//     summary:
-//       `<p><b>The Bletchley Circle</b> follows the journey of four ordinary
-//            women with extraordinary skills that helped to end World War II.</p>
-//          <p>Set in 1952, Susan, Millie, Lucy and Jean have returned to their
-//            normal lives, modestly setting aside the part they played in
-//            producing crucial intelligence, which helped the Allies to victory
-//            and shortened the war. When Susan discovers a hidden code behind an
-//            unsolved murder she is met by skepticism from the police. She
-//            quickly realises she can only begin to crack the murders and bring
-//            the culprit to justice with her former friends.</p>`,
-//     image:
-//       "http://static.tvmaze.com/uploads/images/medium_portrait/147/369403.jpg"
-//   }
-// ]
-// }
 
 
 /** Given list of shows, create markup for each and append to DOM.
@@ -104,6 +83,7 @@ function displayShows(shows) {
       `);
 
     $showsList.append($show);
+
   }
 }
 
@@ -126,11 +106,13 @@ $searchForm.on("submit", async function handleSearchForm(evt) {
 });
 
 
+
 /** Given a show ID, get from API and return (promise) array of episodes:
  *      { id, name, season, number }
  */
 
 async function getEpisodesOfShow(id) {
+  console.log('getEpisodesOfShow ran with id', id);
   const episodeRequestBaseURL = `${REQUEST_BASE_URL}/shows/${id}/episodes`;
   const response = await axios.get(episodeRequestBaseURL);
 
@@ -144,22 +126,37 @@ async function getEpisodesOfShow(id) {
 
     console.log("resulting object:", showObject);
     return showObject;
-  })
+  });
 
   return searchResults;
- }
+}
 
 /** Takes in an array of episodes data and publishes it to the DOM;
- *  episode info => { id, name, season, number } */
+ *  An episode is { id, name, season, number } */
 
 function displayEpisodes(episodes) {
+  console.log('displayEpisodes', episodes);
+  $episodesList.empty();
 
   for (let episode of episodes) {
     const $li = $(`<li>${episode.name} (season ${episode.season}, number ${episode.number})</li>`);
     $episodesList.append($li);
   }
 
-  $episodesArea.css("display", "block");
+  $episodesArea.show();
 }
 
 // add other functions that will be useful / match our structure & design
+
+
+
+/** Retrieves a list of episodes and publishes their data to the DOM */
+async function requestEpisodesAndDisplay(evt) {
+  const id = $(evt.target).closest('.Show').attr('data-show-id');
+
+  const episodes = await getEpisodesOfShow(id);
+  displayEpisodes(episodes);
+}
+
+
+$showsList.on("click", '.Show-getEpisodes', requestEpisodesAndDisplay);

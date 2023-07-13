@@ -28,7 +28,7 @@ async function getShowsByTerm(term) {
 
   const searchResults = response.data.map(item => {
     console.log("item=", item);
-    const image = item.show.image
+    const image = (item.show.image !== null) //be explicit with checks
       ? item.show.image.medium
       : NULL_IMG_URL;
 
@@ -36,7 +36,7 @@ async function getShowsByTerm(term) {
       ? item.show.summary
       : "No summary available";
 
-    const showObject = {
+    const showObject = {//rename to show
       id: item.show.id,
       name: item.show.name,
       summary: summary,
@@ -117,7 +117,7 @@ async function getEpisodesOfShow(id) {
   const response = await axios.get(episodeRequestBaseURL);
 
   const searchResults = response.data.map(item => {
-    const showObject = {
+    const showObject = {//rename
       id: item.id,
       name: item.name,
       season: item.season,
@@ -139,7 +139,10 @@ function displayEpisodes(episodes) {
   $episodesList.empty();
 
   for (let episode of episodes) {
-    const $li = $(`<li>${episode.name} (season ${episode.season}, number ${episode.number})</li>`);
+    const $li = $(
+       `<li>${episode.name} (season ${episode.season},
+        number ${episode.number})</li>`
+      );
     $episodesList.append($li);
   }
 
